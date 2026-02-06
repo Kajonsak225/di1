@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Smart Plant Monitor</title>
+
+<style>
+body{
+  font-family:sans-serif;
+  background:#111;
+  color:white;
+  text-align:center;
+}
+.card{
+  background:#1c1c1c;
+  padding:20px;
+  margin:15px;
+  border-radius:12px;
+}
+button{
+  padding:12px 20px;
+  margin:10px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+.on{background:#00c853;color:white;}
+.off{background:red;color:white;}
+.ok{color:#00ff88;}
+.bad{color:red;}
+</style>
+</head>
+
+<body>
+
+<h2>🌱 Smart Plant Monitor</h2>
+
+<div class="card">
+<h3>💧 Soil Moisture</h3>
+<p id="soil">-- %</p>
+</div>
+
+<div class="card">
+<h3>🌡 Temperature</h3>
+<p id="temp">-- °C</p>
+</div>
+
+<div class="card">
+<h3>🚨 Alarm Status</h3>
+<p id="alarm">--</p>
+</div>
+
+<div class="card">
+<h3>🔊 Buzzer Control</h3>
+<button class="on" onclick="alarmOn()">เปิดเสียง</button>
+<button class="off" onclick="alarmOff()">ปิดเสียง</button>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, set }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC1a-XkNqLQ-fR9K9G3rRq4H3k9SKw9EF0",
+  authDomain: "kjszz-1a818.firebaseapp.com",
+  databaseURL: "https://kjszz-1a818-default-rtdb.firebaseio.com",
+  projectId: "kjszz-1a818",
+  storageBucket: "kjszz-1a818.firebasestorage.app",
+  messagingSenderId: "1056726378754",
+  appId: "1:1056726378754:web:fea6e2b60dcda89783a1b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ===== realtime soil ===== */
+onValue(ref(db,"/sensor/soil"),snap=>{
+ document.getElementById("soil").innerText=
+ snap.val()+" %";
+});
+
+/* ===== realtime temp ===== */
+onValue(ref(db,"/sensor/temperature"),snap=>{
+ document.getElementById("temp").innerText=
+ snap.val()+" °C";
+});
+
+/* ===== alarm status ===== */
+onValue(ref(db,"/sensor/alarm"),snap=>{
+ if(snap.val()){
+   document.getElementById("alarm").innerHTML=
+   "<span class='bad'>กำลังเตือน 🔴</span>";
+ }else{
+   document.getElementById("alarm").innerHTML=
+   "<span class='ok'>ปกติ 🟢</span>";
+ }
+});
+
+/* ===== buzzer control ===== */
+window.alarmOn=function(){
+ set(ref(db,"/control/enable"),true);
+}
+
+window.alarmOff=function(){
+ set(ref(db,"/control/enable"),false);
+}
+
+</script>
+
+</body>
+</html>
